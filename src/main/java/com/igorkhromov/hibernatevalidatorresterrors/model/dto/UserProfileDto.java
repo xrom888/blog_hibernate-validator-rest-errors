@@ -6,11 +6,9 @@ import lombok.*;
 @EqualsAndHashCode
 public class UserProfileDto {
 
-	private String firstName;
+	private String firstName = "Jack";
 
-	private String email;
+	private String email = "jack@london.uk";
 
-	private String birthDate;
-
-	private String friends;
+	private String birthDate = "January 12, 1876";
 }

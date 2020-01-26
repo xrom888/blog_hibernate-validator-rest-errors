@@ -1,6 +1,5 @@
 package com.igorkhromov.hibernatevalidatorresterrors.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.igorkhromov.hibernatevalidatorresterrors.model.dto.SignInEmailDto;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -15,14 +14,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserControllerTest {
 
 	private static final Logger log = LoggerFactory.getLogger(UserControllerTest.class);
-	private static final ObjectMapper MAPPER = new ObjectMapper();
 	private static final String BASE_URL = "http://localhost:";
 
 	@LocalServerPort
@@ -36,7 +33,7 @@ class UserControllerTest {
 	 * logs: validation error status and body
 	 */
 	@Test
-	void whenJsonLoginFormFieldsInvalid_thenShouldReturnValidationErrors() {
+	void whenJsonFormFieldsInvalid_thenShouldReturnValidationErrors() {
 		SignInEmailDto jsonBody = new SignInEmailDto();
 		jsonBody.setEmail("some.email"); //Invalid value: @Email
 		jsonBody.setPassword("pass"); //Invalid value: @Pattern(regexp="^[a-zA-Z0-9]{6,12}$")
@@ -81,7 +78,7 @@ class UserControllerTest {
 		ResponseEntity<String> responseEntity = restTemplate
 				.getForEntity(BASE_URL + port + "/user/" + userId + "/email", String.class);
 
-		assertEquals(500, responseEntity.getStatusCode().value());
+		assertEquals(400, responseEntity.getStatusCode().value());
 		log.info("Response body: {}", responseEntity.getBody());
 	}
 
@@ -96,7 +93,7 @@ class UserControllerTest {
 		ResponseEntity<String> responseEntity = restTemplate
 				.getForEntity(BASE_URL + port + "/users?first_name=" + firstName, String.class);
 
-		assertEquals(500, responseEntity.getStatusCode().value());
+		assertEquals(400, responseEntity.getStatusCode().value());
 		log.info("Response body: {}", responseEntity.getBody());
 	}
 
@@ -138,6 +135,23 @@ class UserControllerTest {
 				.getForEntity(BASE_URL + port + "/exception", String.class);
 
 		assertEquals(500, responseEntity.getStatusCode().value());
+		log.info("Response body: {}", responseEntity.getBody());
+	}
+
+	/**
+	 * Testing success response
+	 * logs: validation error status and body
+	 */
+	@Test
+	void whenValidJSONFormSent_thenShouldReturnUserProfile() {
+		SignInEmailDto jsonBody = new SignInEmailDto();
+		jsonBody.setEmail("jack@london.uk"); //Valid value: @Email
+		jsonBody.setPassword("WhiteFang"); //Valid value: @Pattern(regexp="^[a-zA-Z0-9]{6,12}$")
+
+		ResponseEntity<String> responseEntity = restTemplate
+				.postForEntity(BASE_URL + port + "/user/email", jsonBody, String.class);
+
+		assertEquals(200, responseEntity.getStatusCode().value());
 		log.info("Response body: {}", responseEntity.getBody());
 	}
 }
